@@ -100,11 +100,11 @@ guidelines:
 
 stack:
   # Both written by /spec-first-sdlc:foundation.
-  languages: []      # java, python, typescript, flutter; another value selects no plugin document and needs a guidelines.code.<language> file
-  platforms: []      # backend, web, mobile
+  languages: [python, typescript]      # java, python, typescript, flutter; another value selects no plugin document and needs a guidelines.code.<language> file
+  platforms: [backend, web]      # backend, web, mobile
 
 ui:
-  source: none       # generated: a prototype beside each PRD that describes what the user sees, written with the frontend-design skill; supplied: the project's own designs under aiContextRepo.ui; none: no PRD links a design. Asked by /spec-first-sdlc:foundation where stack.platforms lists web or mobile
+  source: generated       # generated: a prototype beside each PRD that describes what the user sees, written with the frontend-design skill; supplied: the project's own designs under aiContextRepo.ui; none: no PRD links a design. Asked by /spec-first-sdlc:foundation where stack.platforms lists web or mobile
 
 execute:
   maxParallel: 3     # task runs kept going at once within one plan; above 1 a workflow runs a plan large enough to repay it and the conductor runs every other plan itself, one task at a time; at 1 the conductor runs every plan

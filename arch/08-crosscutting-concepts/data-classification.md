@@ -1,0 +1,21 @@
+---
+status: draft
+owner: Igor Roid
+updated: 2026-11-18
+---
+
+# Data classification
+
+| Class | Examples of what falls in it | Where it lives | Who may read it |
+|---|---|---|---|
+| Credentials | passwords, second factors, recovery codes | the identity provider's database only | nobody through the portal |
+| Contact data | e-mail address, phone number | the identity provider, and Accounts where the portal needs it; the mail relay carries the e-mail address of each account mail it delivers | the member, and administrators deciding a verification |
+| Profile | real name, professional link, verification state, reliability mark | Accounts, Moderation | per the module's policy; a reliability mark is public |
+| Pledge detail | the amount of one pledge and who made it | Funding | the project's owner, every pledge on the project; an investor, their own pledge only |
+| Funding totals | a project's pledged and concluded totals | Funding | signed-in members |
+| Member content | forum posts, contributor offers | Discussion, Participation | per the module's policy |
+| Public content | project pages, stages, live evidence, uploaded files shown on a page | Projects, the upload bucket | anyone the page is shown to |
+| Secrets | keys and passwords the services use | local files only: production values on the host, development values on each developer machine and in each CI run, none in the Git platform ([secrets](secrets.md)) | on the host, its administrators and the one container each is mounted into; elsewhere, the machine's developer or the CI run |
+
+Data of each class stays in the module named for it. A copy in another module, a log line or an
+error message is a breach of this table.
