@@ -14,8 +14,8 @@ project:
   id: re-set-kb      # the project's slug, lower-case letters, digits and hyphens: the project label on every metric; derived from the AI context repo's origin name when the file is written, also into .claude/settings.json, and changed by an edit
 
 productRepo:
-  root: ../user-project                 # the product repo, a sibling clone of this one; written by /spec-first-sdlc:scaffold
-  defaultBranch: main                   # the branch a plan's pull request merges into, and the one the skeleton is committed to; written by /spec-first-sdlc:scaffold
+  root: ../re_set                 # the product repo, a sibling clone of this one; written by /spec-first-sdlc:scaffold
+  defaultBranch: master                   # the branch a plan's pull request merges into, and the one the skeleton is committed to; written by /spec-first-sdlc:scaffold
   mergeMethod: merge                    # how a plan's pull request merges: merge, squash or rebase; merge and rebase keep the plan's one commit per task with its Criterion: trailers; squash makes the plan one commit
   featureBranch: feature/<NNNN>-<slug>  # a plan's feature branch, cut from the default branch, or from the previous plan's on the same PRD while that one is unmerged; <NNNN> and <slug> are the spec's
   taskBranch: task/<NNNN>-<id>-<slug>   # a task branch, cut from the feature branch and squashed back onto it when the run ends; <id> and <slug> are the task's
@@ -111,23 +111,23 @@ execute:
   retries: 2         # retries of a stuck stage 04 step before the Architect consult and the escalation re-dispatch
 
 build:
-  smokeCommand:      # the smoke script: starts the application under docker compose, probes it, tears it down; run by the build hook. Written by /spec-first-sdlc:scaffold, with lint.command, test.command and test.coverageReport, from the commands the Scaffolder ran green on the skeleton
+  smokeCommand:      bash scripts/smoke.sh # the smoke script: starts the application under docker compose, probes it, tears it down; run by the build hook. Written by /spec-first-sdlc:scaffold, with lint.command, test.command and test.coverageReport, from the commands the Scaffolder ran green on the skeleton
 
 lint:
-  command:           # how to run the linters; run by the build hook; written by /spec-first-sdlc:scaffold
+  command:           uv run ruff check . && uv run ruff format --check . && uv run mypy src && npm --prefix web run lint && npm --prefix web run type-check # how to run the linters; run by the build hook; written by /spec-first-sdlc:scaffold
 
 test:
-  command:           # how to run the unit suite; run by the build hook and after stage 05's rebase; written by /spec-first-sdlc:scaffold
+  command:           uv run pytest tests/unit --cov=portal --cov-report=term --cov-report=xml:coverage.xml && npm --prefix web run test:coverage # how to run the unit suite; run by the build hook and after stage 05's rebase; written by /spec-first-sdlc:scaffold
   coverageMin: 80    # unit line coverage, in percent, below which the build hook blocks
   coverageReport:    # written by /spec-first-sdlc:scaffold
-    path:            # where test.command leaves its coverage summary, relative to the directory test.command runs in
-    format:          # lcov, cobertura or istanbul-json, the last a json-summary or a coverage-final file
-  functionalCommand: # runs the functional tests on a plan's feature branch, given criterion ids spelled AC_<NNNN>_<n> or none for the whole tree, and writes JUnit XML, one <testcase> per test, under test.resultsPath; written by /spec-first-sdlc:scaffold, with the two below, where stack.platforms lists web or mobile, for the browser runner it installed
-  functionalPath:    # where the functional tests live, relative to productRepo.root
-  resultsPath:       # where runner output lands, relative to productRepo.root; never committed, so the project ignores it in git
+    path:            coverage.xml # where test.command leaves its coverage summary, relative to the directory test.command runs in
+    format:          cobertura # lcov, cobertura or istanbul-json, the last a json-summary or a coverage-final file
+  functionalCommand: bash scripts/functional.sh # runs the functional tests on a plan's feature branch, given criterion ids spelled AC_<NNNN>_<n> or none for the whole tree, and writes JUnit XML, one <testcase> per test, under test.resultsPath; written by /spec-first-sdlc:scaffold, with the two below, where stack.platforms lists web or mobile, for the browser runner it installed
+  functionalPath:    tests/functional/ # where the functional tests live, relative to productRepo.root
+  resultsPath:       test-results/ # where runner output lands, relative to productRepo.root; never committed, so the project ignores it in git
 
 ci:
-  provider:          # the Git platform's CLI stage 06 uses, gh or glab, and the CI workflow the skeleton carries; written by /spec-first-sdlc:scaffold
+  provider:          gh # the Git platform's CLI stage 06 uses, gh or glab, and the CI workflow the skeleton carries; written by /spec-first-sdlc:scaffold
   securityScan: false  # whether the project's CI runs security scans as pull request checks; a failing scan blocks the merge; asked by /spec-first-sdlc:scaffold
   securityCheck:     # the name of the required check that is the security scan, as the Git platform reports it; set when securityScan is true, and asked by /spec-first-sdlc:scaffold then
 
