@@ -1,0 +1,192 @@
+# spec-first-sdlc.yaml, the project's configuration for the spec-first-sdlc plugin.
+# The first stage 01 command run in a new AI context repo writes it at the root from this
+# template, through /spec-first-sdlc:configure, with every default and project.id derived from
+# the origin's name, and commits it; /spec-first-sdlc:foundation and /spec-first-sdlc:scaffold
+# later write the values they ask. Every stage reads it. Paths are relative to this file: the AI context repo's root, which is the
+# session's working directory. A key left empty has no default and is set by the project.
+# A key left commented out falls back to what the plugin ships.
+# The file is a subset of YAML, which the plugin reads without installing anything: maps
+# indented by two spaces; plain or quoted strings, integers, true and false, or an empty value;
+# flow lists such as [java, typescript]; and comments after a #. No block lists, anchors, multi-line
+# strings or tags: the plugin names a value outside the subset and stops.
+
+project:
+  id: re-set-kb      # the project's slug, lower-case letters, digits and hyphens: the project label on every metric; derived from the AI context repo's origin name when the file is written, also into .claude/settings.json, and changed by an edit
+
+productRepo:
+  root: ../user-project                 # the product repo, a sibling clone of this one; written by /spec-first-sdlc:scaffold
+  defaultBranch: main                   # the branch a plan's pull request merges into, and the one the skeleton is committed to; written by /spec-first-sdlc:scaffold
+  mergeMethod: merge                    # how a plan's pull request merges: merge, squash or rebase; merge and rebase keep the plan's one commit per task with its Criterion: trailers; squash makes the plan one commit
+  featureBranch: feature/<NNNN>-<slug>  # a plan's feature branch, cut from the default branch, or from the previous plan's on the same PRD while that one is unmerged; <NNNN> and <slug> are the spec's
+  taskBranch: task/<NNNN>-<id>-<slug>   # a task branch, cut from the feature branch and squashed back onto it when the run ends; <id> and <slug> are the task's
+  worktreeRoot: ../worktrees            # where a workflow-mode task run checks its task branch out, in a directory named for the task branch with each / as -; a worktree lasts as long as its run
+
+aiContextRepo:
+  arch: arch/        # the arc42 tree, its baseline written by stage 01's foundation; skeleton.md; and under _runs/ the foundation's and the scaffold's records and the architecture leg's, one per PRD, named for it
+  intents: intents/  # one directory per intent, <NNNN>-<slug>, holding idea-brief.md and its report, and intent-tracker.md
+  roadmap: roadmap/  # roadmap.md, the project's steps with their source, size, route and status; sources/, the documents a person brought; _runs/, one record per roadmap run
+  prd: prd/          # one file per PRD, <NNNN>-<slug>.md, prd-tracker.md, and the PRD leg's records under _runs/, one per roadmap step, named for it
+  spec: spec/        # one directory per spec, each holding its plan/ and task files, spec-tracker.md, and the spec leg's records under _runs/, one per PRD, named for it
+  ui: ui/            # UI prototypes, one directory per PRD, named for it, each with its screen manifest, screens.md
+  kb: kb/            # the knowledge base, one file per module the arc42 tree names
+  tests: tests/      # what outlives a plan: one directory per PRD holding its test-cases.md, and regression/, one record per whole-tree run of stage 05
+
+templates:
+  # Each key replaces one of the plugin's templates with the project's own file.
+  # intent:              # the idea brief
+  # impact:              # impact.md, a change request's impact analysis
+  # roadmap:             # roadmap.md
+  # skeleton:            # skeleton.md, the skeleton plan the foundation writes and the scaffold runs
+  # prd:                 # a PRD
+  # arc42:               # the arc42 scaffold: a directory with a file per section, the two section directories and the decision record template
+  # spec:                # a spec
+  # screens:             # screens.md, the screen manifest beside a PRD's prototype
+  # dataModel:           # a spec's data-model.md, derived by stage 02's contracts leg
+  # sequences:           # a spec's sequences.md, derived by the same leg
+  # plan:                # a plan
+  # task:                # a task
+  # testPlan:            # a plan's test-plan.md, one row per test case
+  # testCase:            # a PRD's test-cases.md
+  # kb:                  # a knowledge base file, one per module
+  # pr:                  # the body of a plan's pull request
+  # report:
+  #   intent:            # the run record of an intent run
+  #   foundation:        # the foundation leg's record, under _runs/ in the arch area
+  #   roadmap:           # the record of one roadmap run, under _runs/ in the roadmap area
+  #   scaffold:          # the scaffold leg's record, _runs/scaffold.md in the arch area
+  #   prd:               # the PRD leg's record, one per roadmap step
+  #   arc42:             # the architecture leg's record, one per PRD
+  #   specRun:           # the spec leg's record, one per PRD
+  #   spec:              # the report beside each spec
+  #   contracts:         # contracts-report.md, the contracts leg's record beside the spec whose files it derived
+  #   plan:              # the run record of one plan, or of a spec stage 03 parked
+  #   task:              # the run record of one stage 04 task run
+  #   test:              # the plan's test-report.md, one section per stage 05 run
+  #   regression:        # the record of one whole-tree run of stage 05, under regression/ in the tests area
+  #   pr:                # the run record of a stage 06 run
+
+guidelines:
+  # A key naming a plugin guideline document replaces it: the agent reads the project's file
+  # and never the plugin's. A key naming no plugin document adds one. Paths are relative to
+  # this file.
+  # prd:
+  #   practice:          # PRD writing practice; read always
+  # arch:
+  #   principles:        # architecture principles; read always
+  #   system-design:     # system-scale practice; read writing or challenging an arc42 section
+  #   spec:              # how a spec is written; read writing, challenging or reviewing a spec
+  #   derived:           # how a spec's data model, migrations, contract and sequences are derived; read deriving or reading them
+  #   diagrams:          # the diagram style; read where an arc42 section, a spec or a sequences.md holds or needs a diagram
+  #   api:               # API design; read when stack.platforms lists backend
+  #   backend:           # backend architecture; read when stack.platforms lists backend
+  #   frontend:          # frontend architecture; read when stack.platforms lists web
+  #   mobile:            # mobile architecture; read when stack.platforms lists mobile
+  # code:
+  #   practice:          # language-neutral code practice; read always
+  #   java:              # read when stack.languages lists java
+  #   python:            # read when stack.languages lists python
+  #   typescript:        # read when stack.languages lists typescript
+  #   flutter:           # read when stack.languages lists flutter
+  # ui:
+  #   practice:          # UI and accessibility practice; read when stack.platforms lists web or mobile
+  # security:
+  #   practice:          # security practice; read always
+  # test:
+  #   practice:          # test practice; read always
+  # task:
+  #   practice:          # breakdown practice; read always
+  # review:
+  #   <name>:            # the project's review policy, read by stage 06's reviewer; no plugin document
+
+stack:
+  # Both written by /spec-first-sdlc:foundation.
+  languages: []      # java, python, typescript, flutter; another value selects no plugin document and needs a guidelines.code.<language> file
+  platforms: []      # backend, web, mobile
+
+ui:
+  source: none       # generated: a prototype beside each PRD that describes what the user sees, written with the frontend-design skill; supplied: the project's own designs under aiContextRepo.ui; none: no PRD links a design. Asked by /spec-first-sdlc:foundation where stack.platforms lists web or mobile
+
+execute:
+  maxParallel: 3     # task runs kept going at once within one plan; above 1 a workflow runs a plan large enough to repay it and the conductor runs every other plan itself, one task at a time; at 1 the conductor runs every plan
+  retries: 2         # retries of a stuck stage 04 step before the Architect consult and the escalation re-dispatch
+
+build:
+  smokeCommand:      # the smoke script: starts the application under docker compose, probes it, tears it down; run by the build hook. Written by /spec-first-sdlc:scaffold, with lint.command, test.command and test.coverageReport, from the commands the Scaffolder ran green on the skeleton
+
+lint:
+  command:           # how to run the linters; run by the build hook; written by /spec-first-sdlc:scaffold
+
+test:
+  command:           # how to run the unit suite; run by the build hook and after stage 05's rebase; written by /spec-first-sdlc:scaffold
+  coverageMin: 80    # unit line coverage, in percent, below which the build hook blocks
+  coverageReport:    # written by /spec-first-sdlc:scaffold
+    path:            # where test.command leaves its coverage summary, relative to the directory test.command runs in
+    format:          # lcov, cobertura or istanbul-json, the last a json-summary or a coverage-final file
+  functionalCommand: # runs the functional tests on a plan's feature branch, given criterion ids spelled AC_<NNNN>_<n> or none for the whole tree, and writes JUnit XML, one <testcase> per test, under test.resultsPath; written by /spec-first-sdlc:scaffold, with the two below, where stack.platforms lists web or mobile, for the browser runner it installed
+  functionalPath:    # where the functional tests live, relative to productRepo.root
+  resultsPath:       # where runner output lands, relative to productRepo.root; never committed, so the project ignores it in git
+
+ci:
+  provider:          # the Git platform's CLI stage 06 uses, gh or glab, and the CI workflow the skeleton carries; written by /spec-first-sdlc:scaffold
+  securityScan: false  # whether the project's CI runs security scans as pull request checks; a failing scan blocks the merge; asked by /spec-first-sdlc:scaffold
+  securityCheck:     # the name of the required check that is the security scan, as the Git platform reports it; set when securityScan is true, and asked by /spec-first-sdlc:scaffold then
+
+metrics:
+  endpoint: https://spec-first.spd.tech/prometheus/api/v1/otlp/v1/metrics  # where the hooks post a stage's counters, OTLP over HTTP: SPD's central Prometheus, which the file is written with and nobody is asked. Not a project choice, with no opt-out: every stage refuses a run while this is not an http or https URL, or while the person's token gets no 200 from it. The token is per person, in their user settings, written by /spec-first-sdlc:connect-metrics
+
+deploy:
+  environments:      # the environments, in order
+  approvalRequired: [production]  # the environments a release needs authorization for
+  command:           # how a release is triggered
+
+escalation:
+  model: fable       # the model a step is re-dispatched on when a decision its stage reserves is settled in agent mode, and when a stage 04 step is still stuck
+  effort: high       # the effort of that re-dispatch
+
+agents:
+  # Overrides the model or effort a profile's agent file carries. The profile id is camel
+  # cased: test-reviewer is testReviewer. A model is opus, sonnet, haiku or fable.
+  # testReviewer:
+  #   model:
+  #   effort:
+
+interview:
+  depth: medium      # easy, medium or hard: the recommended answer to the depth question /spec-first-sdlc:prd, /spec-first-sdlc:arch and /spec-first-sdlc:specification open with on a step whose route is not quick, and the ceiling on the questions /spec-first-sdlc:intent's interview may put, 4, 10 or 15; the person's answer, or --depth=<level> on the command, wins
+
+prose:
+  duplicateRun: 12   # consecutive words one artifact may share with another before the duplicate-prose hook blocks the write; a quotation under a link passes
+
+critique:
+  # The critique rounds a leg may spend on each loop, per route: route-authority's cap table,
+  # which also fixes the loop ids and what a reached cap does. A cell is an integer of 1 or more,
+  # and a cell left out keeps the plugin's number. The conductor reads a leg's cap from the loop's
+  # id and the route: of the roadmap step, or the effective one a spec carries; the route itself
+  # is never a key. Stage 01's three loops carry no route and read the standard cells only.
+  # Stage 05's fix loop and stage 06's review have no cell.
+  rounds:
+    quick:
+      prd: 1         # stage 02's PRD leg
+      arc42: 1       # stage 02's architecture leg
+      spec: 1        # stage 02's spec leg
+      task: 1        # stage 04's review and build, per task
+      test: 1        # stage 05's review on the tests
+    standard:
+      intent: 2      # stage 01's intent leg, challenge and review
+      foundation: 2  # stage 01's foundation leg
+      roadmap: 2     # stage 01's roadmap leg
+      prd: 3
+      arc42: 3
+      spec: 3
+      task: 2
+      test: 2
+    full:
+      prd: 5
+      arc42: 5
+      spec: 5
+      task: 3
+      test: 3
+
+gates:
+  spec: human        # who approves stage 02's four gates, on the PRDs, the architecture, the specs and each spec's derived files: human, the Originator in the session; agent, each leg's Reviewer, or the contracts leg's script checks
+  plan: agent        # who approves stage 03's plan: human, the Originator; agent, the validation script's pass
+  test: agent        # who approves stage 05's move to stage 06: human or agent
