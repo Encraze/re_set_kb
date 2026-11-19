@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choose your display name</title>
+<style>
+:root{
+  --paper:#EDF0F3; --surface:#FFFFFF; --ink:#18212E; --muted:#566173; --line:#C9D0D9;
+  --pine:#23614F; --pine-deep:#184A3C; --on-pine:#FFFFFF;
+  --error:#A3281C; --error-bg:#FBECEA; --ok:#1E5A47; --ok-bg:#E3F1EA; --focus:#2F64D6;
+  --font:"Segoe UI Variable Text","Segoe UI","Avenir Next","Helvetica Neue",system-ui,sans-serif;
+  --font-display:"Segoe UI Variable Display","Segoe UI","Avenir Next",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--font);min-height:100vh;padding-bottom:5.5rem}
+a{color:var(--pine-deep);text-underline-offset:3px}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+[hidden]{display:none !important}
+
+/* signed-out screens: one left-set column under a heavy pine rule */
+.auth{display:grid;grid-template-columns:minmax(0,1fr);min-height:calc(100vh - 5.5rem)}
+.auth-col{width:100%;max-width:27rem;margin:0 0 0 clamp(16px,12vw,11rem);padding:3.5rem 16px 3rem 0}
+.wordmark{display:inline-block;font:700 1.05rem/1 var(--font-display);letter-spacing:-.01em;color:var(--ink);text-decoration:none;
+  border-top:6px solid var(--pine);padding-top:.7rem;margin-bottom:3rem}
+h1{font:650 2rem/1.15 var(--font-display);letter-spacing:-.02em;margin:0 0 .6rem}
+.lede{color:var(--muted);margin:0 0 2rem;max-width:34ch}
+form{display:grid;gap:1.15rem}
+.field{display:grid;gap:.35rem}
+label{font-weight:600;font-size:.95rem}
+.hint{color:var(--muted);font-size:.875rem;margin:0}
+input{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.7rem .8rem;width:100%}
+input[aria-invalid="true"]{border-color:var(--error);box-shadow:inset 0 0 0 1px var(--error)}
+input[readonly]{background:transparent}
+.field-error{color:var(--error);font-size:.9rem;font-weight:600;margin:0}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap}
+.btn{font:600 1rem/1 var(--font);border:0;border-radius:6px;padding:.85rem 1.2rem;background:var(--pine);color:var(--on-pine);cursor:pointer;width:100%}
+.btn:hover{background:var(--pine-deep)}
+.btn-quiet{background:transparent;color:var(--pine-deep);border:1px solid var(--line);width:auto}
+.btn-quiet:hover{background:var(--surface)}
+.after{margin:1.75rem 0 0;color:var(--muted)}
+.notice{border-left:4px solid var(--ok);background:var(--ok-bg);padding:.8rem 1rem;border-radius:0 6px 6px 0;margin:0 0 1.5rem}
+.notice.error{border-color:var(--error);background:var(--error-bg)}
+.notice p{margin:0}
+.notice strong{display:block;margin-bottom:.15rem}
+
+/* member screens: a header bar with the member's own name */
+.topbar{background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:60rem;margin:0 auto;padding:.85rem 16px;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.topbar .wordmark{margin:0;border-top-width:4px;padding-top:.45rem}
+.me{display:flex;align-items:center;gap:1rem;font-weight:600}
+.me .who{max-width:16ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me a{font-weight:500}
+.page{max-width:60rem;margin:0 auto;padding:2.75rem 16px 3rem}
+.section{max-width:34rem;border-top:1px solid var(--line);padding:1.75rem 0;margin:0}
+.section h2{font:650 1.2rem/1.3 var(--font-display);margin:0 0 .35rem}
+.memberid{display:inline-flex;align-items:baseline;gap:.6rem;margin:.6rem 0 .5rem;padding:.5rem .8rem;border:1px dashed var(--pine);border-radius:6px;background:var(--surface)}
+.memberid b{font:700 1.15rem/1 var(--font-display);letter-spacing:.06em;color:var(--pine-deep)}
+.inline-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.6rem;align-items:start}
+.inline-form .btn{width:auto;white-space:nowrap}
+
+/* the blocking prompt */
+.scrim{position:fixed;inset:0 0 5.5rem 0;background:rgba(24,33,46,.55);display:grid;place-items:center;padding:16px}
+.dialog{background:var(--surface);border-radius:10px;max-width:28rem;width:100%;padding:2rem 1.75rem 1.75rem;border-top:6px solid var(--pine)}
+.dialog h1{font-size:1.6rem}
+.behind{filter:blur(2px);pointer-events:none;user-select:none}
+
+/* prototype chrome, not part of any screen */
+.proto{position:fixed;left:0;right:0;bottom:0;background:#2A3442;color:#E7ECF2;font:14px/1.3 var(--font);z-index:10}
+.proto-in{max-width:60rem;margin:0 auto;padding:.7rem 16px;display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .75rem}
+.proto b{font-weight:600;margin-right:.25rem}
+.proto button{font:inherit;color:inherit;background:transparent;border:1px solid #5B6778;border-radius:999px;padding:.3rem .75rem;cursor:pointer}
+.proto button[aria-pressed="true"]{background:#E7ECF2;color:#2A3442;border-color:#E7ECF2}
+.proto a{color:#BFD8CE;margin-left:auto}
+
+/* index */
+.index li{margin:.5rem 0}
+.index .section{max-width:44rem}
+
+@media (max-width:640px){
+  .auth-col{margin:0;padding:2rem 16px 3rem}
+  h1{font-size:1.65rem}
+  .inline-form{grid-template-columns:1fr}
+  .inline-form .btn{width:100%}
+  .me a{font-size:.95rem}
+  .me .who{max-width:11ch}
+  .proto a{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+</style>
+</head>
+<body>
+
+<div class="behind" aria-hidden="true"><header class="topbar"><div class="topbar-in"><a class="wordmark" href="index.html">Portal</a>
+<div class="me"><span class="who" title="Your display name">&nbsp;</span></div></div></header><div class="page"></div></div>
+<div class="scrim"><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dn-title">
+<h1 id="dn-title">Choose your display name</h1>
+<p class="lede">This is the name other members will see for you. You can change it later.</p>
+<form action="account.html" method="get">
+<div class="field"><label for="dn">Display name</label>
+<input id="dn" name="dn" type="text" autocomplete="nickname" required data-when="default">
+<input id="dn-bad" type="text" value="A" required aria-invalid="true" aria-describedby="dn-err" data-when="validation">
+<p class="field-error" id="dn-err" data-when="validation">Use 2 to 40 characters, on one line.</p>
+<p class="hint">2 to 40 characters, in any alphabet. Others may share it; your member id tells you apart.</p></div>
+<button class="btn" type="submit">Save display name</button>
+</form>
+</section></div>
+<div class="proto" role="region" aria-label="Prototype controls"><div class="proto-in"><b>Prototype state</b><button type="button" data-state="default">Default</button><button type="button" data-state="validation">Validation</button><a href="index.html">All screens</a></div></div>
+<script>
+(function(){
+  var states = ['default','validation'];
+  var q = new URLSearchParams(location.search).get('state');
+  function show(s){
+    if(states.indexOf(s) < 0) s = states[0];
+    document.querySelectorAll('[data-when]').forEach(function(el){
+      el.hidden = el.getAttribute('data-when').split(' ').indexOf(s) < 0;
+    });
+    document.querySelectorAll('.proto button').forEach(function(b){
+      b.setAttribute('aria-pressed', b.dataset.state === s ? 'true' : 'false');
+    });
+  }
+  document.querySelectorAll('.proto button').forEach(function(b){
+    b.addEventListener('click', function(){ show(b.dataset.state); });
+  });
+  show(q);
+})();
+</script>
+</body>
+</html>
