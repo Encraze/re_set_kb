@@ -6,7 +6,7 @@ arc42: [05-building-block-view.md, 08-crosscutting-concepts/authentication-and-a
 size: M
 route: standard
 reworks:
-state: approved
+state: planned
 ---
 
 # Sign in to the portal
