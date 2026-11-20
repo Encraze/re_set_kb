@@ -1,0 +1,223 @@
+openapi: 3.1.0
+info:
+  title: Portal API, sign-in and the session
+  version: 1.0.0
+  description: Derived from the spec "Sign in to the portal". Paths and fields follow the spec's Approach.
+paths:
+  /api/sign-in:
+    get:
+      operationId: startSignIn
+      summary: Start a sign-in at the identity provider
+      description: Stores a sign-in attempt, sets the sign-in cookie and redirects to the provider's authorisation endpoint. Public, no session needed.
+      x-criteria:
+        - AC-0001-4
+      security: []
+      parameters:
+        - name: return
+          in: query
+          required: false
+          description: The portal-relative path to return to. Any other value becomes /account.
+          schema:
+            type: string
+            x-derived: "`GET /api/sign-in?return=<path>` keeps the return path when it is portal-relative"
+      responses:
+        "302":
+          description: Redirect to the provider's authorisation endpoint with PKCE S256 and the scope openid; sets the __Host-portal-sign-in cookie.
+          headers:
+            Location:
+              schema:
+                type: string
+            Set-Cookie:
+              schema:
+                type: string
+        "503":
+          description: The provider is unreachable or slower than 5 seconds; sign-in is unavailable.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: An unexpected error, answered generically.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /api/sign-in/callback:
+    get:
+      operationId: completeSignIn
+      summary: Accept the provider's response and open a session
+      description: Public, no session needed. Accepts the response only when its state equals the cookie's and names a live attempt, checks the ID token, ensures the member's profile and opens a session.
+      x-criteria:
+        - AC-0001-4
+      security: []
+      parameters:
+        - name: state
+          in: query
+          required: false
+          description: The state the provider returns. A missing state is handled as the spec's failure paths say, not rejected before the route runs.
+          schema:
+            type: string
+            x-derived: "accepts the response only when its state equals the cookie's and names a live attempt"
+        - name: __Host-portal-sign-in
+          in: cookie
+          required: false
+          description: The sign-in cookie carrying the state the response's state is compared with.
+          schema:
+            type: string
+            x-derived: "sets a `__Host-portal-sign-in` cookie carrying the state"
+        - name: __Host-portal-session
+          in: cookie
+          required: false
+          description: The session cookie of the browser, whose session the route ends before it opens a new one.
+          schema:
+            type: string
+            x-derived: "ends any session the browser's cookie names"
+        - name: code
+          in: query
+          required: true
+          description: The authorisation code the provider returns.
+          schema:
+            type: string
+            x-derived: "It exchanges the code with the PKCE verifier over the private network"
+      responses:
+        "302":
+          description: A session is open and the sign-in cookie is cleared; redirects to the return path. Also the fresh sign-in for /account when the state is missing, foreign or expired and a sign-in cookie is present.
+          headers:
+            Location:
+              schema:
+                type: string
+            Set-Cookie:
+              schema:
+                type: string
+        "400":
+          description: The state is missing without a sign-in cookie, or the ID token fails a check. No session is opened.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "503":
+          description: The provider is unreachable or slower than 5 seconds. No session is opened.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: An unexpected error, answered generically.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /api/session:
+    get:
+      operationId: getSession
+      summary: Read the session's state-change token
+      description: Callable by a member with a live session. The token goes in X-State-Token on every write.
+      x-criteria:
+        - AC-0001-4
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: The session's state-change token.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          description: No live session.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: An unexpected error, answered generically.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /api/members/me:
+    get:
+      operationId: getCurrentMember
+      summary: Read the signed-in member
+      description: Callable by a member with a live session. The member layout reads it before it draws anything about the member.
+      x-criteria:
+        - AC-0001-4
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: The member's display name, empty until set, and member id.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "401":
+          description: No live session.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: An unexpected error, answered generically.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: __Host-portal-session
+  schemas:
+    Session:
+      type: object
+      required:
+        - stateToken
+      properties:
+        stateToken:
+          type: string
+          x-derived: "`GET /api/session` answers the session's state-change token"
+    Member:
+      type: object
+      required:
+        - displayName
+        - memberId
+      properties:
+        displayName:
+          type: string
+          x-derived: "answering `displayName`, empty until the member sets one"
+        memberId:
+          type: string
+          pattern: "^M-[0-9A-HJKMNP-TV-Z]{8}$"
+          x-derived: "and `memberId`, with `Cache-Control: no-store`"
+    Problem:
+      type: object
+      required:
+        - type
+        - title
+        - status
+        - correlationId
+      properties:
+        type:
+          type: string
+          x-derived: "401 problem response of type `signed-out`"
+        title:
+          type: string
+          x-derived: "any other problem becomes a readable message with the correlation id"
+        status:
+          type: integer
+          x-derived: "403 of type `state-token-invalid`"
+        correlationId:
+          type: string
+          x-derived: "any other problem becomes a readable message with the correlation id"
