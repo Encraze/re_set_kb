@@ -1,7 +1,7 @@
 ---
 status: draft
 owner: Igor Roid
-updated: 2026-11-18
+updated: 2026-11-20
 ---
 
 # Glossary
@@ -9,6 +9,8 @@ updated: 2026-11-18
 | Term | Meaning |
 |---|---|
 | Member | Anyone signed up and signed in. A member takes a role on each project separately. |
+| Display name | The name a member chooses to be known by on the portal. |
+| Member id | The identifier a member's profile holds from its creation at the member's first sign-in. |
 | Visitor | Someone browsing without signing in. |
 | Idea owner | The member who created a project page and manages it. |
 | Project | An idea presented on the portal, with its page, files, stages and funding ask. |

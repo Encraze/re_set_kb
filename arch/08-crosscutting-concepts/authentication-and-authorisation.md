@@ -1,7 +1,7 @@
 ---
 status: draft
 owner: Igor Roid
-updated: 2026-11-18
+updated: 2026-11-20
 ---
 
 # Authentication and authorisation
@@ -21,6 +21,30 @@ on the server and at the provider.
 
 Administrators sign in with a second factor, which the identity provider enforces for the
 administrator role.
+
+## Account pages
+
+Creating an account, confirming its address, signing in, asking for a recovery link and setting a
+new password all happen on the identity provider's own pages, and behave as
+[PRD 0001, requirements 1, 2, 3 and 8](../../prd/0001-members-sign-up-sign-in-and-set-the-name-other-members-see.md#requirements)
+(sign-up, confirmation, sign-in and recovery) set out. They carry the portal's look and are
+served on the portal's domain, so a member never sees where the portal ends and the provider
+begins. The e-mail address is the username, and the sign-up form asks
+for the address and a password and no other field. The portal's theme overrides the provider's
+registration template, and the override supplies the password confirmation the provider requires
+from the password the member typed once.
+
+The provider refuses a second account for an address in use, and the same override shows this
+refusal as the confirm-address outcome a new address gets. The provider's configuration gives
+the sign-in and recovery messages those requirements set, and slows repeated failed sign-ins to
+one account.
+
+A member holds a portal session from sign-in, whether or not their profile holds a display name.
+Accounts says whether a member's profile is complete. While it is not, the API block's request
+filter answers every request but those of the display-name setup and sign-out with the status
+registration incomplete and a redirect to the display-name setup, which holds the member to the
+prompt of [PRD 0001, requirement 5](../../prd/0001-members-sign-up-sign-in-and-set-the-name-other-members-see.md#requirements)
+(display name).
 
 ## Who may do what
 

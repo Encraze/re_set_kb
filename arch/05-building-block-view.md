@@ -1,7 +1,7 @@
 ---
 status: draft
 owner: Igor Roid
-updated: 2026-11-18
+updated: 2026-11-20
 ---
 
 # Building block view
@@ -79,9 +79,14 @@ returns what they answer.
 
 Responsible for the members of the portal: each member's profile, keyed by the identity the
 provider confirms, the roles a member holds on the platform, and the state of an investor's
-verification with the administrator's approval of it.
+verification with the administrator's approval of it. Sign-up at the provider continues through
+the confirmation of the address into the member's first sign-in to the portal, and Accounts
+creates the profile there, with the member id it generates for it, so a member holds the id from
+the moment they can use the portal.
 
-- Offers: who a member is, which platform roles they hold, and whether they are a verified investor.
+- Offers: who a member is, the display name and member id other members know them by, whether
+  their profile is complete, which platform roles they hold, and whether they are a verified
+  investor.
 - Uses: no other module.
 
 ### Projects
